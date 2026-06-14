@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1085,6 +1085,61 @@
     document.querySelector('.login-modal').addEventListener('click', (e) => {
       e.stopPropagation();
     });
+  </script>
+
+  <!-- Google Translate for automatic localization -->
+  <div id="google_translate_element" style="display:none;"></div>
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage: 'sv', autoDisplay: false}, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  
+  <script>
+    async function autoTranslate() {
+      // Check if translation is already set
+      if (document.cookie.indexOf('googtrans=') === -1) {
+        let userLang = '';
+        
+        try {
+          // Attempt to get language via IP API
+          const res = await fetch('https://ipapi.co/json/');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.languages) {
+              // e.g. "en-US,es-US" -> "en"
+              userLang = data.languages.split(',')[0].split('-')[0];
+            } else if (data.country) {
+              // Basic fallback mapping if languages missing
+              const countryMap = { 'TR': 'tr', 'US': 'en', 'GB': 'en', 'DE': 'de', 'FR': 'fr', 'ES': 'es', 'IT': 'it' };
+              userLang = countryMap[data.country] || '';
+            }
+          }
+        } catch (e) {
+          console.warn('IP lookup failed, falling back to browser language');
+        }
+
+        // Fallback to browser language
+        if (!userLang) {
+          userLang = (navigator.language || navigator.userLanguage).split('-')[0];
+        }
+
+        // Apply translation if the user's language is different from the site's default (sv)
+        if (userLang && userLang !== 'sv') {
+          // Set Google Translate cookies
+          document.cookie = `googtrans=/sv/${userLang}; path=/`;
+          if (location.hostname) {
+            document.cookie = `googtrans=/sv/${userLang}; domain=.${location.hostname}; path=/`;
+          }
+          // Reload the page to apply the translation immediately
+          location.reload();
+        }
+      }
+    }
+    
+    // Run the auto translation check
+    autoTranslate();
   </script>
 </body>
 </html>
